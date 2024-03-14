@@ -32,9 +32,34 @@ const BUNDLE_DIR = 'bundle/';
 const BASE64_DIR = 'base64/';
 const WAIT = 100; // hack, some async IO seems unfinished when task finishes
 
-gulp.task('default', ['minify']);
+gulp.task('clean', () =>
+  gulp.src([DIST_DIR, BUNDLE_DIR, BASE64_DIR], {read: false, allowEmpty: true})
+  .pipe(clean())
+  .pipe(wait(WAIT))
+);
 
-gulp.task('base64', ['imagemin'], () =>
+gulp.task('concat', gulp.series('clean'), () =>
+  gulp.src(SRC_JS)
+  .pipe(concat(LIB_NAME))
+  .pipe(gulp.dest(BUNDLE_DIR))
+  .pipe(wait(WAIT))
+);
+
+gulp.task('jshint-bundle', gulp.series('concat'), () =>
+  gulp.src(BUNDLE_DIR + LIB_NAME)
+  //.pipe(plumber())
+  .pipe(jshint({ esversion: 6 }))
+  .pipe(jshint.reporter('default'))
+);
+
+gulp.task('imagemin', gulp.series('concat'), () =>
+  gulp.src(SRC_DIR + IMG_DIR + '**/*')
+  .pipe(imagemin())
+  .pipe(gulp.dest(BUNDLE_DIR + IMG_DIR))
+  .pipe(wait(WAIT))
+);
+
+gulp.task('base64', gulp.series('imagemin'), () =>
   gulp.src(BUNDLE_DIR + LIB_NAME)
   .pipe(inject({
     basepath: BUNDLE_DIR + 'img/',
@@ -46,26 +71,13 @@ gulp.task('base64', ['imagemin'], () =>
   .pipe(wait(WAIT))
 );
 
-gulp.task('imagemin', ['concat'], () =>
-  gulp.src(SRC_DIR + IMG_DIR + '**/*')
-  .pipe(imagemin())
-  .pipe(gulp.dest(BUNDLE_DIR + IMG_DIR))
-  .pipe(wait(WAIT))
-);
-
 gulp.task('watch', () =>
   watch(SRC_JS, batch((events, done) =>
     gulp.start('default', done)
   ))
 );
 
-gulp.task('clean', () =>
-  gulp.src([DIST_DIR, BUNDLE_DIR, BASE64_DIR], {read: false})
-  .pipe(clean())
-  .pipe(wait(WAIT))
-);
-
-gulp.task('umd', ['base64'], () =>
+gulp.task('umd', gulp.series('base64'), () =>
   gulp.src(BASE64_DIR + LIB_NAME)
   //.pipe(plumber())
   .pipe(umd({
@@ -76,7 +88,7 @@ gulp.task('umd', ['base64'], () =>
   .pipe(wait(WAIT))
 );
 
-gulp.task('umdstep', [], () =>
+gulp.task('umdstep', () =>
   gulp.src(BASE64_DIR + LIB_NAME)
   //.pipe(plumber())
   .pipe(umd({
@@ -87,35 +99,28 @@ gulp.task('umdstep', [], () =>
   .pipe(wait(WAIT))
 );
 
-gulp.task('jshint-src', [], () =>
+gulp.task('jshint-src', () =>
   gulp.src(SRC_JS)
   //.pipe(plumber())
   .pipe(jshint({ esversion: 6 }))
   .pipe(jshint.reporter('default'))
 );
 
-gulp.task('jshint-bundle', ['concat'], () =>
-  gulp.src(BUNDLE_DIR + LIB_NAME)
-  //.pipe(plumber())
-  .pipe(jshint({ esversion: 6 }))
-  .pipe(jshint.reporter('default'))
-);
-
-gulp.task('jshint-base64', ['base64'], () =>
+gulp.task('jshint-base64', gulp.series('base64'), () =>
   gulp.src(BASE64_DIR + LIB_NAME)
   //.pipe(plumber())
   .pipe(jshint({ esversion: 6 }))
   .pipe(jshint.reporter('default'))
 );
 
-gulp.task('jshint-umd', ['umd'], () =>
+gulp.task('jshint-umd', gulp.series('umd'), () =>
   gulp.src(DIST_DIR + LIB_NAME)
   //.pipe(plumber())
   .pipe(jshint({ esversion: 6 }))
   .pipe(jshint.reporter('default'))
 );
 
-gulp.task('minify', ['umd'], () =>
+gulp.task('minify', gulp.series('umd'), () =>
   gulp.src(DIST_DIR + LIB_NAME)
   .pipe(uglify())
   .pipe(rename((path) => {
@@ -124,7 +129,7 @@ gulp.task('minify', ['umd'], () =>
   .pipe(gulp.dest(DIST_DIR))
 );
 
-gulp.task('minifystep', [], () =>
+gulp.task('minifystep', () =>
   gulp.src(DIST_DIR + LIB_NAME)
   .pipe(uglify())
   .pipe(rename((path) => {
@@ -139,9 +144,4 @@ gulp.task('changed', () =>
   .pipe(gulp.dest(DIST_DIR))
 );
 
-gulp.task('concat', ['clean'], () =>
-  gulp.src(SRC_JS)
-  .pipe(concat(LIB_NAME))
-  .pipe(gulp.dest(BUNDLE_DIR))
-  .pipe(wait(WAIT))
-);
+gulp.task('default', gulp.series('minify'));
