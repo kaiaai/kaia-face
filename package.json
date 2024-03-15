@@ -1,6 +1,6 @@
 {
   "name": "kaia-face.js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Robot face animation library for Kaia.ai",
   "main": "./dist/kaia-face.min.js",
   "scripts": {
