@@ -24,29 +24,17 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-es2017": "^6.24.1",
-    "gulp": "^4.0.0",
-    "gulp-batch": "^1.0.5",
-    "gulp-changed": "^3.1.1",
-    "gulp-clean": "^0.3.2",
+    "gulp": "^4.0.2",
+    "gulp-clean": "^0.4.0",
+    "gulp-imagemin": "^7.0.1",
+    "gulp-cli": "^2.3.0",
     "gulp-concat": "^2.6.1",
-    "gulp-imagemin": "^4.0.0",
     "gulp-js-base64-inject": "^1.0.1",
-    "gulp-jshint": "^2.0.4",
-    "gulp-plumber": "^1.1.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-replace": "^1.0.0",
-    "gulp-uglify": "^3.0.0",
-    "gulp-uglify-es": "^0.1.4",
-    "gulp-umd": "^0.2.1",
-    "gulp-wait": "0.0.2",
-    "gulp-watch": "^4.3.11",
-    "jshint": "^2.9.5"
+    "gulp-jshint": "^2.1.0",
+    "gulp-replace": "^1.1.4",
+    "gulp-umd": "^2.0.0"
   },
   "dependencies": {
-    "imagemin-gifsicle": "^7.0.0",
-    "imagemin-jpegtran": "^7.0.0",
-    "imagemin-optipng": "^8.0.0",
-    "imagemin-svgo": "^10.0.1",
     "jquery": "^3.2.1"
   }
 }

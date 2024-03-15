@@ -62,6 +62,7 @@ function jshint_bundle(cb) {
 }
 
 function base64(cb) {
+  console.log("base64 before src()\n");
   src(BUNDLE_DIR + LIB_NAME)
     .pipe(inject({
       basepath: BUNDLE_DIR + IMG_DIR,
@@ -71,7 +72,9 @@ function base64(cb) {
     .pipe(replace('image/png;base64', 'data:image/png;base64')) // inject bug workaround
     .pipe(dest(BASE64_DIR));
 //  .pipe(wait(WAIT))
+  console.log("base64 before cb()\n");
   cb();
+  console.log("base64 after cb()\n");
 }
 
 function umd(cb) {
