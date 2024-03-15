@@ -1,6 +1,7 @@
 const { src, dest, series } = require("gulp");
 const clean_ = require('gulp-clean');
 const concat_ = require('gulp-concat');
+const jshint = require('gulp-jshint');
 
 const LIB_NAME = 'kaia-face.js';
 const SRC_DIR = 'src/';
@@ -35,6 +36,15 @@ function concat(cb) {
   cb();
 }
 
+function jshint_bundle(cb) {
+  src(BUNDLE_DIR + LIB_NAME)
+    //.pipe(plumber())
+    .pipe(jshint({ esversion: 6 }))
+    .pipe(jshint.reporter('default'));
+  cb();
+}
+
 exports.copy = copy;
 exports.clean = clean;
 exports.concat = series(clean, concat);
+exports.jshint_bundle = series(concat, jshint_bundle);
