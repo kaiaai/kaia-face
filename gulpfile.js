@@ -2,6 +2,7 @@ const { src, dest, series } = require("gulp");
 const clean_ = require('gulp-clean');
 const concat_ = require('gulp-concat');
 const jshint = require('gulp-jshint');
+const imagemin_ = require('gulp-imagemin');
 
 const LIB_NAME = 'kaia-face.js';
 const SRC_DIR = 'src/';
@@ -44,7 +45,16 @@ function jshint_bundle(cb) {
   cb();
 }
 
+function imagemin(cb) {
+  src(SRC_DIR + IMG_DIR + '**/*')
+    .pipe(imagemin_())
+    .pipe(dest(BUNDLE_DIR + IMG_DIR));
+//    .pipe(wait(WAIT))
+  cb();
+}
+
 exports.copy = copy;
 exports.clean = clean;
 exports.concat = series(clean, concat);
 exports.jshint_bundle = series(concat, jshint_bundle);
+exports.imagemin = series(concat, imagemin);
