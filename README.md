@@ -170,13 +170,16 @@ face.addSynonyms('wow', 'wow-synonym'); // add a single synonym to an existing e
 face.addSynonyms('annoyed', ['annoyed-synonym']); // add multiple synonims to an existing expression
 ````
 
+## Build Setup
+- Install Node.js, currently v20.11.1 LTS
+- Install npm, currently v10.2.4
+
 ## Build
 ````bash
-npm install gulp-cli -g
+# npm install gulp-cli -g
 git clone https://github.com/kaiaai/kaia-face.js
 cd kaia-face.js
 npm install
 gulp
-# wait a couple of minutes
-ls dist
+ls dist/kaia-face.min.js
 ````
