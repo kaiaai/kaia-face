@@ -5,8 +5,12 @@ const jshint = require('gulp-jshint');
 const imagemin_ = require('gulp-imagemin');
 const inject = require('gulp-js-base64-inject');
 const replace = require('gulp-replace');
+const umd_ = require('gulp-umd');
 
 const LIB_NAME = 'kaia-face.js';
+const UMD_EXPORTS = 'Face';
+const UMD_NAMESPACE = UMD_EXPORTS;
+
 const SRC_DIR = 'src/';
 const SRC_JS_DIR = SRC_DIR + 'js/';
 const SRC_JS = [SRC_JS_DIR + 'helpers.js', SRC_JS_DIR + 'animationModule.js',
@@ -18,7 +22,7 @@ const DIST_DIR = 'dist/';
 const BUNDLE_DIR = 'bundle/';
 const BASE64_DIR = 'base64/';
 
-function imagemin_task(cb) {
+function imagemin(cb) {
   src(SRC_DIR + IMG_DIR + '**/*')
     .pipe(imagemin_())
     .pipe(dest(BUNDLE_DIR + IMG_DIR));
@@ -26,14 +30,14 @@ function imagemin_task(cb) {
   cb();
 }
 
-function clean_task(cb) {
+function clean(cb) {
   src([DIST_DIR, BUNDLE_DIR, BASE64_DIR], {read: false, allowEmpty: true})
     .pipe(clean_());
 //  .pipe(wait(WAIT))
   cb();
 }
 
-function concat_task(cb) {
+function concat(cb) {
   src(SRC_JS)
     .pipe(concat_(LIB_NAME))
     .pipe(dest(BUNDLE_DIR));
@@ -41,7 +45,15 @@ function concat_task(cb) {
   cb();
 }
 
-function jshint_bundle_task(cb) {
+function jshint_src(cb) {
+  src(SRC_JS)
+    //.pipe(plumber())
+    .pipe(jshint({ esversion: 6 }))
+    .pipe(jshint.reporter('default'))
+  cb();
+}
+
+function jshint_bundle(cb) {
   src(BUNDLE_DIR + LIB_NAME)
     //.pipe(plumber())
     .pipe(jshint({ esversion: 6 }))
@@ -49,10 +61,10 @@ function jshint_bundle_task(cb) {
   cb();
 }
 
-function base64_task(cb) {
+function base64(cb) {
   src(BUNDLE_DIR + LIB_NAME)
     .pipe(inject({
-      basepath: BUNDLE_DIR + 'img/',
+      basepath: BUNDLE_DIR + IMG_DIR,
       pattern: /['"]img\/([a-zA-Z0-9\-_.\\/]+)['"]/g
       //debug: true
     }))
@@ -62,8 +74,22 @@ function base64_task(cb) {
   cb();
 }
 
-exports.clean = clean_task;
-exports.concat = series(clean_task, concat_task);
-exports.jshint_bundle = series(concat_task, jshint_bundle_task);
-exports.imagemin = series(concat_task, imagemin_task);
-exports.base64 = series(imagemin_task, base64_task);
+function umd(cb) {
+  src(BASE64_DIR + LIB_NAME)
+    //.pipe(plumber())
+    .pipe(umd_({
+      namespace: () => UMD_NAMESPACE,
+      exports: () => UMD_EXPORTS,
+    }))
+    .pipe(dest(DIST_DIR));
+//    .pipe(wait(WAIT))
+  cb();
+}
+
+exports.clean = clean;
+exports.concat = series(exports.clean, concat);
+exports.jshint_src = jshint_src;
+exports.jshint_bundle = series(exports.concat, jshint_bundle);
+exports.imagemin = series(exports.concat, imagemin);
+exports.base64 = series(exports.imagemin, base64);
+exports.umd = series(exports.base64, umd);
