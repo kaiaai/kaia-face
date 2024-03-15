@@ -23,47 +23,38 @@ const BUNDLE_DIR = 'bundle/';
 const BASE64_DIR = 'base64/';
 
 function imagemin(cb) {
-  src(SRC_DIR + IMG_DIR + '**/*')
+  return src(SRC_DIR + IMG_DIR + '**/*')
     .pipe(imagemin_())
     .pipe(dest(BUNDLE_DIR + IMG_DIR));
-//    .pipe(wait(WAIT))
-  cb();
 }
 
 function clean(cb) {
-  src([DIST_DIR, BUNDLE_DIR, BASE64_DIR], {read: false, allowEmpty: true})
+  return src([DIST_DIR, BUNDLE_DIR, BASE64_DIR], {read: false, allowEmpty: true})
     .pipe(clean_());
-//  .pipe(wait(WAIT))
-  cb();
 }
 
 function concat(cb) {
-  src(SRC_JS)
+  return src(SRC_JS)
     .pipe(concat_(LIB_NAME))
     .pipe(dest(BUNDLE_DIR));
-//    .pipe(wait(WAIT))
-  cb();
 }
 
 function jshint_src(cb) {
-  src(SRC_JS)
+  return src(SRC_JS)
     //.pipe(plumber())
     .pipe(jshint({ esversion: 6 }))
     .pipe(jshint.reporter('default'))
-  cb();
 }
 
 function jshint_bundle(cb) {
-  src(BUNDLE_DIR + LIB_NAME)
+  return src(BUNDLE_DIR + LIB_NAME)
     //.pipe(plumber())
     .pipe(jshint({ esversion: 6 }))
     .pipe(jshint.reporter('default'));
-  cb();
 }
 
 function base64(cb) {
-  console.log("base64 before src()\n");
-  src(BUNDLE_DIR + LIB_NAME)
+  return src(BUNDLE_DIR + LIB_NAME)
     .pipe(inject({
       basepath: BUNDLE_DIR + IMG_DIR,
       pattern: /['"]img\/([a-zA-Z0-9\-_.\\/]+)['"]/g
@@ -71,22 +62,16 @@ function base64(cb) {
     }))
     .pipe(replace('image/png;base64', 'data:image/png;base64')) // inject bug workaround
     .pipe(dest(BASE64_DIR));
-//  .pipe(wait(WAIT))
-  console.log("base64 before cb()\n");
-  cb();
-  console.log("base64 after cb()\n");
 }
 
 function umd(cb) {
-  src(BASE64_DIR + LIB_NAME)
+  return src(BASE64_DIR + LIB_NAME)
     //.pipe(plumber())
     .pipe(umd_({
       namespace: () => UMD_NAMESPACE,
       exports: () => UMD_EXPORTS,
     }))
     .pipe(dest(DIST_DIR));
-//    .pipe(wait(WAIT))
-  cb();
 }
 
 exports.clean = clean;
